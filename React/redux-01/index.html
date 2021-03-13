@@ -162,20 +162,37 @@
     class Todos extends React.Component {
       addItem = (e) => {
         e.preventDefault()
-        const name = this.input.value
-        this.input.value = ''
-
-        this.props.store.dispatch(addTodoAction({
-          name,
-          complete: false,
-          id: generateId()
-        }))
+        
+        return API.saveTodo(this.input.value)
+            .then((todo) =>{
+                this.props.store.dispatch(addTodoAction(todo))
+                this.input.value = ''
+            })
+            .catch(()=>{
+                alert("There was an error. Try again.")
+            })
       }
       removeItem = (todo) => {
+        //-- remove UI
         this.props.store.dispatch(removeTodoAction(todo.id))
+
+        //-- try to delete - DB
+        return API.deleteTodo(todo.id)
+            .catch(()=>{
+                this.props.store.dispatch(addTodoAction(todo))        
+                alert('Ops, not removed!');
+            })
       }
       toggleItem = (id) => {
+        //-- toggle UI
         this.props.store.dispatch(toggleTodoAction(id))
+
+        //-- try to save toggle - DB
+        return API.saveTodoToggle(todo.id)
+            .catch(()=>{
+                this.props.store.dispatch(toggleTodoAction(id))      
+                alert('Ops, not toggled!');
+            })
       }
       render() {
         return (
@@ -199,24 +216,26 @@
     }
 
     class Goals extends React.Component {
-    //   componentDidMount () {
-    //     API.fetchGoals().then(response => {
-    //         console.log(response);
-    //     });
-    //   }
-
       addItem = (e) => {
         e.preventDefault()
-        const name = this.input.value
-        this.input.value = ''
 
-        this.props.store.dispatch(addGoalAction({
-          id: generateId(),
-          name,
-        }))
+        return API.saveGoal(this.input.value)
+            .then((goal) =>{
+                this.props.store.dispatch(addGoalAction(goal))
+                this.input.value = ''
+            })
+            .catch(()=>{
+                alert("There was an error. Try again.")
+            })
       }
       removeItem = (goal) => {
         this.props.store.dispatch(removeGoalAction(goal.id))
+        //-- try to delete from DB
+        return API.deleteGoal(goal.id)
+            .catch(()=>{
+                this.props.store.dispatch(addGoalAction(goal))        
+                alert('Ops, not removed!');
+            })
       }
       render() {
         return (
